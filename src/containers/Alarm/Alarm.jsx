@@ -17,8 +17,11 @@ const Alarm = () => {
 	}));
 	const [isRunning, setRunning] = useState(false);
 	const [intervalId, setIntervalId] = useState(0);
+	const [totalSeconds, setTotalSeconds] = useState(0);
 	const [breakTime, setBreaktime] = useState(new Date('', '', '', '', 5, 0));
 	const [pomodoroTimer, setPomodoroTimer] = useState(new Date('', '', '', '', 25, 0));
+	const [isBreakTime, setIsBreakTime] = useState(false);
+	const [startBreak, setStartBreak] = useState(false);
 
 	const onClickPlay = () => {
 		if (!isRunning) {
@@ -30,7 +33,7 @@ const Alarm = () => {
 				setSeconds(timer.getSeconds().toLocaleString('pt-BR', {
 					minimumIntegerDigits: 2,
 				}));
-			}, 1000);
+			}, 50);
 			setIntervalId(alarmOn);
 			setRunning(true);
 		}
@@ -43,17 +46,25 @@ const Alarm = () => {
 
 	const onClickRepeat = () => {
 		setTimer(new Date('', '', '', '', 25, 0));
+		setPomodoroTimer(new Date('', '', '', '', 25, 0));
+		setBreaktime(new Date('', '', '', '', 5, 0));
 		clearInterval(intervalId);
 		setRunning(false);
+		setIsBreakTime(false);
 	};
 
 	const onClickPlus = (event) => {
 		const { target } = event;
 		if (!isRunning) {
 			if (target.parentNode.classList.value === 'pomodoro') {
-				setPomodoroTimer(new Date('', '', '', '', pomodoroTimer.getMinutes() + 1, 0));
+				if (pomodoroTimer.getMinutes() > 1 && pomodoroTimer.getMinutes() < 59) {
+					setPomodoroTimer(new Date('', '', '', '', pomodoroTimer.getMinutes() + 1, 0));
+					setTimer(new Date('', '', '', '', pomodoroTimer.getMinutes() + 1, 0));
+				}
 			} else if (target.parentNode.classList.value === 'break') {
-				setBreaktime(new Date('', '', '', '', breakTime.getMinutes() + 1, 0));
+				if (breakTime.getMinutes() > 1 && breakTime.getMinutes() < 59) {
+					setBreaktime(new Date('', '', '', '', breakTime.getMinutes() + 1, 0));
+				}
 			}
 		}
 	};
@@ -62,9 +73,14 @@ const Alarm = () => {
 		const { target } = event;
 		if (!isRunning) {
 			if (target.parentNode.classList.value === 'pomodoro') {
-				setPomodoroTimer(new Date('', '', '', '', pomodoroTimer.getMinutes() - 1, 0));
+				if (pomodoroTimer.getMinutes() > 1 && pomodoroTimer.getMinutes() < 59) {
+					setPomodoroTimer(new Date('', '', '', '', pomodoroTimer.getMinutes() - 1, 0));
+					setTimer(new Date('', '', '', '', pomodoroTimer.getMinutes() - 1, 0));
+				}
 			} else if (target.parentNode.classList.value === 'break') {
-				setBreaktime(new Date('', '', '', '', breakTime.getMinutes() - 1, 0));
+				if (breakTime.getMinutes() > 1 && breakTime.getMinutes() < 59) {
+					setBreaktime(new Date('', '', '', '', breakTime.getMinutes() - 1, 0));
+				}
 			}
 		}
 	};
@@ -76,12 +92,54 @@ const Alarm = () => {
 		setSeconds(timer.getSeconds().toLocaleString('pt-BR', {
 			minimumIntegerDigits: 2,
 		}));
+		setTotalSeconds(breakTime.getMinutes() * 60);
 	}, [timer]);
+
+	useEffect(() => {
+		if (minutes === '00' && seconds === '00' && timer.getSeconds() === 0) {
+			if (isBreakTime && isRunning && totalSeconds === 0) {
+				clearInterval(intervalId);
+				setTimer(pomodoroTimer);
+				setIsBreakTime(false);
+				setRunning(false);
+			} else if (isRunning && !isBreakTime) {
+				setIsBreakTime(true);
+			}
+		}
+
+		if (startBreak && timer.getMinutes() === 0 && timer.getSeconds() === 0) {
+			onClickRepeat();
+		}
+	}, [minutes, seconds]);
+
+	useEffect(() => {
+		if (isBreakTime) {
+			setTimer(new Date(0, '', '', '', breakTime.getMinutes(), 0));
+			clearInterval(intervalId);
+			setStartBreak(true);
+		}
+	}, [isBreakTime]);
+
+	useEffect(() => {
+		if (startBreak) {
+			const runningBreakTime = setInterval(() => {
+				timer.setSeconds(timer.getSeconds() - 1);
+				setMinutes(timer.getMinutes().toLocaleString('pt-BR', {
+					minimumIntegerDigits: 2,
+				}));
+				setSeconds(timer.getSeconds().toLocaleString('pt-BR', {
+					minimumIntegerDigits: 2,
+				}));
+			}, 50);
+			setIntervalId(runningBreakTime);
+		}
+	}, [startBreak]);
 
 	return (
 		<>
 			<div className="timerSetter">
 				<div>
+					<h1>SESSION</h1>
 					<Screen className="alarmSetter">
 						<h3>
 							{`${pomodoroTimer.getMinutes().toLocaleString('pt-BR', {
@@ -97,6 +155,7 @@ const Alarm = () => {
 					</div>
 				</div>
 				<div>
+					<h1>BREAK</h1>
 					<Screen className="breakSetter">
 						<h3>
 							{`${breakTime.getMinutes().toLocaleString('pt-BR', {
@@ -119,6 +178,7 @@ const Alarm = () => {
 			</div>
 			<div className="timer">
 				<Screen className="screenTimer">
+					<h2>{isBreakTime ? 'BREAK' : 'SESSION'}</h2>
 					<h1>{`${minutes}:${seconds}`}</h1>
 				</Screen>
 			</div>
