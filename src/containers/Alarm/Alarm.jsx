@@ -23,7 +23,7 @@ const Alarm = () => {
 	const [isBreakTime, setIsBreakTime] = useState(false);
 	const [startBreak, setStartBreak] = useState(false);
 
-	const onClickPlay = () => {
+	const onClickPlayPause = () => {
 		if (!isRunning) {
 			const alarmOn = setInterval(() => {
 				timer.setSeconds(timer.getSeconds() - 1);
@@ -36,12 +36,10 @@ const Alarm = () => {
 			}, 50);
 			setIntervalId(alarmOn);
 			setRunning(true);
+		} else {
+			setRunning(false);
+			clearInterval(intervalId);
 		}
-	};
-
-	const onClickPause = () => {
-		setRunning(false);
-		clearInterval(intervalId);
 	};
 
 	const onClickRepeat = () => {
@@ -57,13 +55,18 @@ const Alarm = () => {
 		const { target } = event;
 		if (!isRunning) {
 			if (target.parentNode.classList.value === 'pomodoro') {
-				if (pomodoroTimer.getMinutes() > 1 && pomodoroTimer.getMinutes() < 59) {
+				if (pomodoroTimer.getMinutes() >= 1 && pomodoroTimer.getMinutes() * 60 !== 0) {
 					setPomodoroTimer(new Date('', '', '', '', pomodoroTimer.getMinutes() + 1, 0));
 					setTimer(new Date('', '', '', '', pomodoroTimer.getMinutes() + 1, 0));
+				} else if (pomodoroTimer.getHours() === 1) {
+					setPomodoroTimer(new Date('', '', '', '', pomodoroTimer.getHours() * 60, 0));
+					setTimer(new Date('', '', '', '', pomodoroTimer.getHours() * 60, 0));
 				}
 			} else if (target.parentNode.classList.value === 'break') {
-				if (breakTime.getMinutes() > 1 && breakTime.getMinutes() < 59) {
+				if (breakTime.getMinutes() >= 1 && breakTime.getMinutes() * 60 !== 0) {
 					setBreaktime(new Date('', '', '', '', breakTime.getMinutes() + 1, 0));
+				} else if (breakTime.getHours() === 1) {
+					setBreaktime(new Date('', '', '', '', breakTime.getHours() * 60, 0));
 				}
 			}
 		}
@@ -73,12 +76,12 @@ const Alarm = () => {
 		const { target } = event;
 		if (!isRunning) {
 			if (target.parentNode.classList.value === 'pomodoro') {
-				if (pomodoroTimer.getMinutes() > 1 && pomodoroTimer.getMinutes() < 59) {
+				if (pomodoroTimer.getMinutes() * 60 !== 60) {
 					setPomodoroTimer(new Date('', '', '', '', pomodoroTimer.getMinutes() - 1, 0));
 					setTimer(new Date('', '', '', '', pomodoroTimer.getMinutes() - 1, 0));
 				}
 			} else if (target.parentNode.classList.value === 'break') {
-				if (breakTime.getMinutes() > 1 && breakTime.getMinutes() < 59) {
+				if (breakTime.getMinutes() * 60 !== 60) {
 					setBreaktime(new Date('', '', '', '', breakTime.getMinutes() - 1, 0));
 				}
 			}
@@ -86,12 +89,16 @@ const Alarm = () => {
 	};
 
 	useEffect(() => {
-		setMinutes(timer.getMinutes().toLocaleString('pt-BR', {
-			minimumIntegerDigits: 2,
-		}));
-		setSeconds(timer.getSeconds().toLocaleString('pt-BR', {
-			minimumIntegerDigits: 2,
-		}));
+		if (timer.getHours() === 1) {
+			setMinutes('60');
+		} else {
+			setMinutes(timer.getMinutes().toLocaleString('pt-BR', {
+				minimumIntegerDigits: 2,
+			}));
+			setSeconds(timer.getSeconds().toLocaleString('pt-BR', {
+				minimumIntegerDigits: 2,
+			}));
+		}
 		setTotalSeconds(breakTime.getMinutes() * 60);
 	}, [timer]);
 
@@ -139,47 +146,45 @@ const Alarm = () => {
 		<>
 			<div className="timerSetter">
 				<div>
-					<h1>SESSION</h1>
+					<h1 id="session-label">SESSION LENGTH</h1>
 					<Screen className="alarmSetter">
-						<h3>
-							{`${pomodoroTimer.getMinutes().toLocaleString('pt-BR', {
-								minimumIntegerDigits: 2,
-							})}:${pomodoroTimer.getSeconds().toLocaleString('pt-BR', {
-								minimumIntegerDigits: 2,
-							})}`}
-						</h3>
+						<p id="session-length">
+							{pomodoroTimer.getHours() === 1
+								? `${pomodoroTimer.getHours() * 60}`
+								: `${pomodoroTimer.getMinutes()}`}
+						</p>
 					</Screen>
 					<div className="pomodoro">
-						<Button className="plusMinusButton" onClick={onClickPlus}><FaPlus /></Button>
-						<Button className="plusMinusButton" onClick={onClickMinus}><FaMinus /></Button>
+						<Button id="session-increment" className="plusMinusButton" onClick={onClickPlus}><FaPlus /></Button>
+						<Button id="session-decrement" className="plusMinusButton" onClick={onClickMinus}><FaMinus /></Button>
 					</div>
 				</div>
 				<div>
-					<h1>BREAK</h1>
+					<h1 id="break-label">BREAK LENGTH</h1>
 					<Screen className="breakSetter">
-						<h3>
-							{`${breakTime.getMinutes().toLocaleString('pt-BR', {
-								minimumIntegerDigits: 2,
-							})}:${breakTime.getSeconds().toLocaleString('pt-BR', {
-								minimumIntegerDigits: 2,
-							})}`}
-						</h3>
+						<p id="break-length">
+							{breakTime.getHours() === 1
+								? `${breakTime.getHours() * 60}`
+								: `${breakTime.getMinutes()}`}
+						</p>
 					</Screen>
 					<div className="break">
-						<Button className="plusMinusButton" onClick={onClickPlus}><FaPlus /></Button>
-						<Button className="plusMinusButton" onClick={onClickMinus}><FaMinus /></Button>
+						<Button id="break-increment" className="plusMinusButton" onClick={onClickPlus}><FaPlus /></Button>
+						<Button id="break-decrement" className="plusMinusButton" onClick={onClickMinus}><FaMinus /></Button>
 					</div>
 				</div>
 			</div>
 			<div className="buttonsSet">
-				<Button className="controllerButton" onClick={onClickPlay}><FaPlay /></Button>
-				<Button className="controllerButton" onClick={onClickPause}><FaPause /></Button>
-				<Button className="controllerButton" onClick={onClickRepeat}><FaReplyAll /></Button>
+				<Button id="start_stop" className="controllerButton" onClick={onClickPlayPause}>
+					<FaPlay />
+					<FaPause />
+				</Button>
+				<Button id="reset" className="controllerButton" onClick={onClickRepeat}><FaReplyAll /></Button>
 			</div>
 			<div className="timer">
 				<Screen className="screenTimer">
-					<h2>{isBreakTime ? 'BREAK' : 'SESSION'}</h2>
-					<h1>{`${minutes}:${seconds}`}</h1>
+					<h2 id="timer-label">{isBreakTime ? 'BREAK' : 'SESSION'}</h2>
+					<h1 id="time-left">{`${minutes}:${seconds}`}</h1>
 				</Screen>
 			</div>
 		</>

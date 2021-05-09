@@ -28,9 +28,10 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		width: 15rem;
+		width: 18rem;
 		height: 8rem;
-		font-size: 2rem;
+		font-size: 5rem;
+		font-weight: 400;
 		color: var(--number-color);
 		background-color: #464f54;
 		border: 0.2rem solid black;
@@ -96,9 +97,11 @@
 }
 
 .controllerButton {
+	position: relative;
+	z-index: 3;
 	width: 5rem;
 	height: 1.8rem;
-	bottom: 0.5rem;
+	bottom: 0.1rem;
 	color: lightgrey;
 	background-color: #323c41;
 	border: 0.15rem solid black;
@@ -109,6 +112,11 @@
 
 	&:active {
 		transform: translateY(0.3rem);
+	}
+
+	svg {
+		position: relative;
+		z-index: -5;
 	}
 
 }
