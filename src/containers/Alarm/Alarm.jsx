@@ -106,18 +106,33 @@ const Alarm = () => {
 		if (minutes === '00' && seconds === '00' && timer.getSeconds() === 0) {
 			if (isBreakTime && isRunning && totalSeconds === 0) {
 				clearInterval(intervalId);
-				setTimer(pomodoroTimer);
+				setTimer(new Date('', '', '', '', pomodoroTimer.getMinutes(), 0));
 				setIsBreakTime(false);
 				setRunning(false);
 			} else if (isRunning && !isBreakTime) {
 				setIsBreakTime(true);
+				return;
 			}
 		}
 
 		if (startBreak && timer.getMinutes() === 0 && timer.getSeconds() === 0) {
-			onClickRepeat();
+			console.log('aqui----------------------');
+			// setRunning(false);
+			setIsBreakTime(false);
+			if (setPomodoroTimer.getHours === 1) {
+				setTimer(new Date('', '', '', '', pomodoroTimer.getHours() * 60, 0));
+			} else {
+				setTimer(new Date('', '', '', '', pomodoroTimer.getMinutes(), 0));
+			}
 		}
 	}, [minutes, seconds]);
+
+	useEffect(() => {
+		if (timer.getTime() === pomodoroTimer.getTime() && isBreakTime) {
+			clearInterval(intervalId);
+			setTimer(new Date('', '', '', '', pomodoroTimer.getMinutes(), 0));
+		}
+	}, [isRunning, isBreakTime]);
 
 	useEffect(() => {
 		if (isBreakTime) {
