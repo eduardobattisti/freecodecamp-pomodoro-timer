@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
 	FaPlay, FaPause, FaReplyAll, FaPlus, FaMinus,
 } from 'react-icons/fa';
@@ -15,147 +15,54 @@ const Alarm = () => {
 	const [seconds, setSeconds] = useState(timer.getSeconds().toLocaleString('pt-BR', {
 		minimumIntegerDigits: 2,
 	}));
-	const [isRunning, setRunning] = useState(false);
+	const [sessionTime, setSessionTime] = useState('', '', '', '', 25, 0);
+	const [breakTime, setBreakTime] = useState('', '', '', '', 5, 0);
+	const [isRunning, setIsRunning] = useState(false);
 	const [intervalId, setIntervalId] = useState(0);
-	const [totalSeconds, setTotalSeconds] = useState(0);
-	const [breakTime, setBreaktime] = useState(new Date('', '', '', '', 5, 0));
-	const [pomodoroTimer, setPomodoroTimer] = useState(new Date('', '', '', '', 25, 0));
-	const [isBreakTime, setIsBreakTime] = useState(false);
-	const [startBreak, setStartBreak] = useState(false);
+	// const [isBreakTime, setIsBreakTime] = useState(false);
 
-	const onClickPlayPause = () => {
+	onClickPlayPause = () => {
 		if (!isRunning) {
-			const alarmOn = setInterval(() => {
-				timer.setSeconds(timer.getSeconds() - 1);
-				setMinutes(timer.getMinutes().toLocaleString('pt-BR', {
-					minimumIntegerDigits: 2,
-				}));
-				setSeconds(timer.getSeconds().toLocaleString('pt-BR', {
-					minimumIntegerDigits: 2,
-				}));
+			const runningTime = setInterval(() => {
+				setTimer(new Date('', '', '', '', '', timer.getSeconds() - 1));
 			}, 50);
-			setIntervalId(alarmOn);
-			setRunning(true);
+			setIntervalId(runningTime);
 		} else {
-			setRunning(false);
-			clearInterval(intervalId);
+			clearInteval(intervalId);
+			setIsRunning(true);
 		}
 	};
 
-	const onClickRepeat = () => {
-		setTimer(new Date('', '', '', '', 25, 0));
-		setPomodoroTimer(new Date('', '', '', '', 25, 0));
-		setBreaktime(new Date('', '', '', '', 5, 0));
-		clearInterval(intervalId);
-		setRunning(false);
-		setIsBreakTime(false);
+	onClickSessionPlus = () => {
+		setSessionTime(new Date('', '', '', '', sessionTime.getMinutes() + 1, 0));
 	};
 
-	const onClickPlus = (event) => {
-		const { target } = event;
-		if (!isRunning) {
-			if (target.parentNode.classList.value === 'pomodoro') {
-				if (pomodoroTimer.getMinutes() >= 1 && pomodoroTimer.getMinutes() * 60 !== 0) {
-					setPomodoroTimer(new Date('', '', '', '', pomodoroTimer.getMinutes() + 1, 0));
-					setTimer(new Date('', '', '', '', pomodoroTimer.getMinutes() + 1, 0));
-				} else if (pomodoroTimer.getHours() === 1) {
-					setPomodoroTimer(new Date('', '', '', '', pomodoroTimer.getHours() * 60, 0));
-					setTimer(new Date('', '', '', '', pomodoroTimer.getHours() * 60, 0));
-				}
-			} else if (target.parentNode.classList.value === 'break') {
-				if (breakTime.getMinutes() >= 1 && breakTime.getMinutes() * 60 !== 0) {
-					setBreaktime(new Date('', '', '', '', breakTime.getMinutes() + 1, 0));
-				} else if (breakTime.getHours() === 1) {
-					setBreaktime(new Date('', '', '', '', breakTime.getHours() * 60, 0));
-				}
-			}
-		}
+	onClickSessionMinus = () => {
+		setSessionTime(new Date('', '', '', '', sessionTime.getMinutes() - 1, 0));
 	};
 
-	const onClickMinus = (event) => {
-		const { target } = event;
-		if (!isRunning) {
-			if (target.parentNode.classList.value === 'pomodoro') {
-				if (pomodoroTimer.getMinutes() * 60 !== 60) {
-					setPomodoroTimer(new Date('', '', '', '', pomodoroTimer.getMinutes() - 1, 0));
-					setTimer(new Date('', '', '', '', pomodoroTimer.getMinutes() - 1, 0));
-				}
-			} else if (target.parentNode.classList.value === 'break') {
-				if (breakTime.getMinutes() * 60 !== 60) {
-					setBreaktime(new Date('', '', '', '', breakTime.getMinutes() - 1, 0));
-				}
-			}
-		}
+	onClickBreakPlus = () => {
+		setBreakTime(new Date('', '', '', '', breakTime.getMinutes() + 1, 0));
+	};
+
+	onClickBreakMinus = () => {
+		setBreakTime(new Date('', '', '', '', breakTime.getMinutes() - 1, 0));
 	};
 
 	useEffect(() => {
-		if (timer.getHours() === 1) {
-			setMinutes('60');
-		} else {
-			setMinutes(timer.getMinutes().toLocaleString('pt-BR', {
-				minimumIntegerDigits: 2,
-			}));
-			setSeconds(timer.getSeconds().toLocaleString('pt-BR', {
-				minimumIntegerDigits: 2,
-			}));
+		if (!isRunning) {
+			setTimer(new Date('', '', '', '', sessionTime.getMinutes(), 0));
 		}
-		setTotalSeconds(breakTime.getMinutes() * 60);
+	}, [sessionTime]);
+
+	useEffect(() => {
+		setMinutes(timer.getMinutes().toLocaleString('pt-BR', {
+			minimumIntegerDigits: 2,
+		}));
+		setSeconds(timer.getSeconds().toLocaleString('pt-BR', {
+			minimumIntegerDigits: 2,
+		}));
 	}, [timer]);
-
-	useEffect(() => {
-		if (minutes === '00' && seconds === '00' && timer.getSeconds() === 0) {
-			if (isBreakTime && isRunning && totalSeconds === 0) {
-				clearInterval(intervalId);
-				setTimer(new Date('', '', '', '', pomodoroTimer.getMinutes(), 0));
-				setIsBreakTime(false);
-				setRunning(false);
-			} else if (isRunning && !isBreakTime) {
-				setIsBreakTime(true);
-				return;
-			}
-		}
-
-		if (startBreak && timer.getMinutes() === 0 && timer.getSeconds() === 0) {
-			console.log('aqui----------------------');
-			// setRunning(false);
-			setIsBreakTime(false);
-			if (setPomodoroTimer.getHours === 1) {
-				setTimer(new Date('', '', '', '', pomodoroTimer.getHours() * 60, 0));
-			} else {
-				setTimer(new Date('', '', '', '', pomodoroTimer.getMinutes(), 0));
-			}
-		}
-	}, [minutes, seconds]);
-
-	useEffect(() => {
-		if (timer.getTime() === pomodoroTimer.getTime() && isBreakTime) {
-			clearInterval(intervalId);
-			setTimer(new Date('', '', '', '', pomodoroTimer.getMinutes(), 0));
-		}
-	}, [isRunning, isBreakTime]);
-
-	useEffect(() => {
-		if (isBreakTime) {
-			setTimer(new Date(0, '', '', '', breakTime.getMinutes(), 0));
-			clearInterval(intervalId);
-			setStartBreak(true);
-		}
-	}, [isBreakTime]);
-
-	useEffect(() => {
-		if (startBreak) {
-			const runningBreakTime = setInterval(() => {
-				timer.setSeconds(timer.getSeconds() - 1);
-				setMinutes(timer.getMinutes().toLocaleString('pt-BR', {
-					minimumIntegerDigits: 2,
-				}));
-				setSeconds(timer.getSeconds().toLocaleString('pt-BR', {
-					minimumIntegerDigits: 2,
-				}));
-			}, 50);
-			setIntervalId(runningBreakTime);
-		}
-	}, [startBreak]);
 
 	return (
 		<>
@@ -164,14 +71,14 @@ const Alarm = () => {
 					<h1 id="session-label">SESSION LENGTH</h1>
 					<Screen className="alarmSetter">
 						<p id="session-length">
-							{pomodoroTimer.getHours() === 1
-								? `${pomodoroTimer.getHours() * 60}`
-								: `${pomodoroTimer.getMinutes()}`}
+							{sessionTime.getHours() === 1
+								? `${sessionTime.getHours() * 60}`
+								: `${sessionTime.getMinutes()}`}
 						</p>
 					</Screen>
 					<div className="pomodoro">
-						<Button id="session-increment" className="plusMinusButton" onClick={onClickPlus}><FaPlus /></Button>
-						<Button id="session-decrement" className="plusMinusButton" onClick={onClickMinus}><FaMinus /></Button>
+						<Button id="session-increment" className="plusMinusButton" onClick={onClickSessionPlus}><FaPlus /></Button>
+						<Button id="session-decrement" className="plusMinusButton" onClick={onClickSessionMinus}><FaMinus /></Button>
 					</div>
 				</div>
 				<div>
