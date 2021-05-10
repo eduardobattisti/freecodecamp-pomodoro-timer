@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
 	FaPlay, FaPause, FaReplyAll, FaPlus, FaMinus,
 } from 'react-icons/fa';
@@ -9,6 +9,7 @@ import './style.scss';
 const Alarm = () => {
 	// States
 	const [timer, setTimer] = useState(new Date('', '', '', '', 25, 0));
+	const [time, setTime] = useState(timer.getTime());
 	const [minutes, setMinutes] = useState(timer.getMinutes().toLocaleString('pt-BR', {
 		minimumIntegerDigits: 2,
 	}));
@@ -18,11 +19,20 @@ const Alarm = () => {
 	const [sessionTime, setSessionTime] = useState(new Date('', '', '', '', 25, 0));
 	const [breakTime, setBreakTime] = useState(new Date('', '', '', '', 5, 0));
 	const [isRunning, setIsRunning] = useState(false);
-	// const [intervalId, setIntervalId] = useState(0);
-	// const [isBreakTime, setIsBreakTime] = useState(false);
+	const lastTime = useRef(null);
+
+	const startStopTimer = () => {
+		if (!lastTime.current) {
+			lastTime.current = setInterval(() => setTime((currentTime) => currentTime - 1000, 50));
+		} else {
+			clearInterval(lastTime.current);
+			lastTime.current = null;
+		}
+	};
 
 	const onClickPlayPause = () => {
 		if (!isRunning) {
+			startStopTimer();
 			setIsRunning(true);
 		} else {
 			setIsRunning(false);
@@ -66,6 +76,10 @@ const Alarm = () => {
 		setSessionTime(new Date('', '', '', '', 25, 0));
 		setBreakTime(new Date('', '', '', '', 5, 0));
 	};
+
+	useEffect(() => {
+		setTimer(new Date(time));
+	}, [time]);
 
 	useEffect(() => {
 		if (!isRunning) {
