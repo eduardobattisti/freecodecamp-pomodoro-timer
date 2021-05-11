@@ -23,6 +23,7 @@
         "indent": ["error", "tab"],
 		"no-spaced-func": "off",
 		"func-call-spacing": "off",
+		"space-infix-ops": "off",
 		"max-len": ["error", { "code": 150 }],
 		"jsx-a11y/media-has-caption": [ 0, {
             "audio": [ "Audio" ],

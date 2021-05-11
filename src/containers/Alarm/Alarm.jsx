@@ -20,8 +20,7 @@ const Alarm = () => {
 	const [isBreak, setIsBreak] = useState(false);
 	const [isRunning, setIsRunning] = useState(false);
 	const lastTime = useRef(null);
-	const audioRef = useRef < HTMLAudioElement > (null);
-	console.log(audioRef);
+	const audioRef = useRef(new Audio());
 
 	const startStopTimer = () => {
 		if (!lastTime.current) {
@@ -44,41 +43,50 @@ const Alarm = () => {
 
 	// Session Buttons
 	const onClickSessionPlus = () => {
-		if (sessionTime.getHours() === 1) {
-			setSessionTime(new Date('', '', '', '', sessionTime.getHours() * 60, 0));
-		} else {
-			setSessionTime(new Date('', '', '', '', sessionTime.getMinutes() + 1, 0));
+		if (!isRunning) {
+			if (sessionTime.getHours() === 1) {
+				setSessionTime(new Date('', '', '', '', sessionTime.getHours() * 60, 0));
+			} else {
+				setSessionTime(new Date('', '', '', '', sessionTime.getMinutes() + 1, 0));
+			}
 		}
 	};
 
 	const onClickSessionMinus = () => {
-		if (sessionTime.getMinutes() > 1 || sessionTime.getHours() === 1) {
-			setSessionTime(new Date('', '', '', '', sessionTime.getMinutes() - 1, 0));
+		if (!isRunning) {
+			if (sessionTime.getMinutes() > 1 || sessionTime.getHours() === 1) {
+				setSessionTime(new Date('', '', '', '', sessionTime.getMinutes() - 1, 0));
+			}
 		}
 	};
 
 	// Break Buttons
 	const onClickBreakPlus = () => {
-		if (breakTime.getHours() === 1) {
-			setBreakTime(new Date('', '', '', '', breakTime.getHours() * 60, 0));
-		} else {
-			setBreakTime(new Date('', '', '', '', breakTime.getMinutes() + 1, 0));
+		if (!isRunning) {
+			if (breakTime.getHours() === 1) {
+				setBreakTime(new Date('', '', '', '', breakTime.getHours() * 60, 0));
+			} else {
+				setBreakTime(new Date('', '', '', '', breakTime.getMinutes() + 1, 0));
+			}
 		}
 	};
 
 	const onClickBreakMinus = () => {
-		if (breakTime.getMinutes() > 1 || breakTime.getHours() === 1) {
-			setBreakTime(new Date('', '', '', '', breakTime.getMinutes() - 1, 0));
+		if (!isRunning) {
+			if (breakTime.getMinutes() > 1 || breakTime.getHours() === 1) {
+				setBreakTime(new Date('', '', '', '', breakTime.getMinutes() - 1, 0));
+			}
 		}
 	};
 
 	// Repeat Button
 	const onClickRepeat = () => {
-		// clearInterval(intervalId);
-		setTimer(new Date('', '', '', '', 25, 0));
 		setSessionTime(new Date('', '', '', '', 25, 0));
 		setBreakTime(new Date('', '', '', '', 5, 0));
+		setIsRunning(false);
 		setIsBreak(false);
+		audioRef.current.currentTime = 0;
+		audioRef.current.pause();
 		if (lastTime.current) {
 			startStopTimer();
 		}
@@ -108,12 +116,15 @@ const Alarm = () => {
 	}, [timer]);
 
 	useEffect(() => {
-		if (minutes === '00' && seconds === '00') {
+		console.log(new Date(timer.getTime() - 1000));
+		if (!isBreak && timer.getHours() === 23) {
+			audioRef.current.play();
 			setIsBreak(true);
 			setTimer(new Date('', '', '', '', breakTime.getMinutes(), 0));
 		}
 
-		if (minutes === '00' && seconds === '00' && isBreak) {
+		if (isBreak && timer.getHours() === 23) {
+			audioRef.current.play();
 			setIsBreak(false);
 			setTimer(new Date('', '', '', '', sessionTime.getMinutes(), 0));
 		}
