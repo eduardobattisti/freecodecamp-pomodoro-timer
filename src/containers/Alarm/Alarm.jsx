@@ -9,7 +9,6 @@ import './style.scss';
 const Alarm = () => {
 	// States
 	const [timer, setTimer] = useState(new Date('', '', '', '', 25, 0));
-	const [time, setTime] = useState(timer.getTime());
 	const [minutes, setMinutes] = useState(timer.getMinutes().toLocaleString('pt-BR', {
 		minimumIntegerDigits: 2,
 	}));
@@ -18,12 +17,15 @@ const Alarm = () => {
 	}));
 	const [sessionTime, setSessionTime] = useState(new Date('', '', '', '', 25, 0));
 	const [breakTime, setBreakTime] = useState(new Date('', '', '', '', 5, 0));
+	const [isBreak, setIsBreak] = useState(false);
 	const [isRunning, setIsRunning] = useState(false);
 	const lastTime = useRef(null);
+	const audioRef = useRef < HTMLAudioElement > (null);
+	console.log(audioRef);
 
 	const startStopTimer = () => {
 		if (!lastTime.current) {
-			lastTime.current = setInterval(() => setTime((currentTime) => currentTime - 1000, 50));
+			lastTime.current = setInterval(() => setTimer((currentTime) => new Date(currentTime.getTime() - 1000)), 100);
 		} else {
 			clearInterval(lastTime.current);
 			lastTime.current = null;
@@ -35,6 +37,7 @@ const Alarm = () => {
 			startStopTimer();
 			setIsRunning(true);
 		} else {
+			startStopTimer();
 			setIsRunning(false);
 		}
 	};
@@ -75,11 +78,11 @@ const Alarm = () => {
 		setTimer(new Date('', '', '', '', 25, 0));
 		setSessionTime(new Date('', '', '', '', 25, 0));
 		setBreakTime(new Date('', '', '', '', 5, 0));
+		setIsBreak(false);
+		if (lastTime.current) {
+			startStopTimer();
+		}
 	};
-
-	useEffect(() => {
-		setTimer(new Date(time));
-	}, [time]);
 
 	useEffect(() => {
 		if (!isRunning) {
@@ -103,6 +106,18 @@ const Alarm = () => {
 			}));
 		}
 	}, [timer]);
+
+	useEffect(() => {
+		if (minutes === '00' && seconds === '00') {
+			setIsBreak(true);
+			setTimer(new Date('', '', '', '', breakTime.getMinutes(), 0));
+		}
+
+		if (minutes === '00' && seconds === '00' && isBreak) {
+			setIsBreak(false);
+			setTimer(new Date('', '', '', '', sessionTime.getMinutes(), 0));
+		}
+	}, [minutes, seconds]);
 
 	return (
 		<>
@@ -145,8 +160,18 @@ const Alarm = () => {
 			</div>
 			<div className="timer">
 				<Screen className="screenTimer">
-					<h2 id="timer-label">SESSION</h2>
+					<h2 id="timer-label">{isBreak ? 'BREAK' : 'SESSION'}</h2>
 					<h1 id="time-left">{`${minutes}:${seconds}`}</h1>
+					<audio
+						// eslint-disable-next-line react/jsx-indent-props
+						id="beep"
+						// eslint-disable-next-line react/jsx-indent-props
+						src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav"
+						// eslint-disable-next-line react/jsx-indent-props
+						preload="auto"
+						// eslint-disable-next-line react/jsx-indent-props
+						ref={audioRef}
+					/>
 				</Screen>
 			</div>
 		</>

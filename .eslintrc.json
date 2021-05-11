@@ -21,7 +21,14 @@
         "react/jsx-filename-extension": [1, { "extensions": [".js", ".jsx"] }],
         "react/jsx-indent": [2 , "tab"],
         "indent": ["error", "tab"],
+		"no-spaced-func": "off",
+		"func-call-spacing": "off",
 		"max-len": ["error", { "code": 150 }],
+		"jsx-a11y/media-has-caption": [ 0, {
+            "audio": [ "Audio" ],
+            "video": [ "Video" ],
+            "track": [ "Track" ]
+          }],
 		"linebreak-style": 0,
 		"no-shadow": 0,
 		"consistent-return": [0, "error", { "treatUndefinedAsUnspecified": false }],
