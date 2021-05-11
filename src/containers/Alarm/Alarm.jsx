@@ -24,7 +24,7 @@ const Alarm = () => {
 
 	const startStopTimer = () => {
 		if (!lastTime.current) {
-			lastTime.current = setInterval(() => setTimer((currentTime) => new Date(currentTime.getTime() - 1000)), 100);
+			lastTime.current = setInterval(() => setTimer((currentTime) => new Date(currentTime.getTime() - 1000)), 300);
 		} else {
 			clearInterval(lastTime.current);
 			lastTime.current = null;
@@ -83,6 +83,8 @@ const Alarm = () => {
 	const onClickRepeat = () => {
 		setSessionTime(new Date('', '', '', '', 25, 0));
 		setBreakTime(new Date('', '', '', '', 5, 0));
+		setMinutes('25');
+		setSeconds('00');
 		setIsRunning(false);
 		setIsBreak(false);
 		audioRef.current.currentTime = 0;
@@ -103,9 +105,20 @@ const Alarm = () => {
 	}, [sessionTime]);
 
 	useEffect(() => {
+		if (timer.getHours() === 23 && timer.getMinutes() === 59 && timer.getSeconds() === 59) {
+			console.log(timer);
+			setMinutes('00');
+			setSeconds('00');
+			return;
+		}
+
 		if (sessionTime.getHours() === 1) {
 			setMinutes('60');
-		} else {
+			return;
+		}
+
+		if (sessionTime.getHours() === 0) {
+			console.log('aqui3');
 			setMinutes(timer.getMinutes().toLocaleString('pt-BR', {
 				minimumIntegerDigits: 2,
 			}));
@@ -116,15 +129,14 @@ const Alarm = () => {
 	}, [timer]);
 
 	useEffect(() => {
-		console.log(new Date(timer.getTime() - 1000));
-		if (!isBreak && timer.getHours() === 23) {
+		if (!isBreak && minutes === '00' && seconds === '00') {
 			audioRef.current.play();
 			setIsBreak(true);
 			setTimer(new Date('', '', '', '', breakTime.getMinutes(), 0));
+			return;
 		}
 
-		if (isBreak && timer.getHours() === 23) {
-			audioRef.current.play();
+		if (isBreak && minutes === '00' && seconds === '00') {
 			setIsBreak(false);
 			setTimer(new Date('', '', '', '', sessionTime.getMinutes(), 0));
 		}
