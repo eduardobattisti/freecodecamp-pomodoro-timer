@@ -1,0 +1,21 @@
+{
+  "files": {
+    "main.css": "/freecodecamp-pomodoro-timer/static/css/main.c893ed34.chunk.css",
+    "main.js": "/freecodecamp-pomodoro-timer/static/js/main.943ed04a.chunk.js",
+    "main.js.map": "/freecodecamp-pomodoro-timer/static/js/main.943ed04a.chunk.js.map",
+    "runtime-main.js": "/freecodecamp-pomodoro-timer/static/js/runtime-main.197b0da4.js",
+    "runtime-main.js.map": "/freecodecamp-pomodoro-timer/static/js/runtime-main.197b0da4.js.map",
+    "static/js/2.39bc132d.chunk.js": "/freecodecamp-pomodoro-timer/static/js/2.39bc132d.chunk.js",
+    "static/js/2.39bc132d.chunk.js.map": "/freecodecamp-pomodoro-timer/static/js/2.39bc132d.chunk.js.map",
+    "index.html": "/freecodecamp-pomodoro-timer/index.html",
+    "static/css/main.c893ed34.chunk.css.map": "/freecodecamp-pomodoro-timer/static/css/main.c893ed34.chunk.css.map",
+    "static/js/2.39bc132d.chunk.js.LICENSE.txt": "/freecodecamp-pomodoro-timer/static/js/2.39bc132d.chunk.js.LICENSE.txt",
+    "static/media/App.scss": "/freecodecamp-pomodoro-timer/static/media/alarm clock.c02a5d05.ttf"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.197b0da4.js",
+    "static/js/2.39bc132d.chunk.js",
+    "static/css/main.c893ed34.chunk.css",
+    "static/js/main.943ed04a.chunk.js"
+  ]
+}
