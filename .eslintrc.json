@@ -24,6 +24,7 @@
 		"no-spaced-func": "off",
 		"func-call-spacing": "off",
 		"space-infix-ops": "off",
+		"react/forbid-prop-types": "off",
 		"max-len": ["error", { "code": 150 }],
 		"jsx-a11y/media-has-caption": [ 0, {
             "audio": [ "Audio" ],

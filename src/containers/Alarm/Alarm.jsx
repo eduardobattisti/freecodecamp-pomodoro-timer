@@ -9,22 +9,24 @@ import './style.scss';
 const Alarm = () => {
 	// States
 	const [timer, setTimer] = useState(new Date('', '', '', '', 25, 0));
-	const [minutes, setMinutes] = useState(timer.getMinutes().toLocaleString('pt-BR', {
-		minimumIntegerDigits: 2,
-	}));
-	const [seconds, setSeconds] = useState(timer.getSeconds().toLocaleString('pt-BR', {
-		minimumIntegerDigits: 2,
-	}));
 	const [sessionTime, setSessionTime] = useState(new Date('', '', '', '', 25, 0));
 	const [breakTime, setBreakTime] = useState(new Date('', '', '', '', 5, 0));
 	const [isBreak, setIsBreak] = useState(false);
 	const [isRunning, setIsRunning] = useState(false);
+	const zeroTime = useRef(false);
 	const lastTime = useRef(null);
 	const audioRef = useRef(new Audio());
 
 	const startStopTimer = () => {
 		if (!lastTime.current) {
-			lastTime.current = setInterval(() => setTimer((currentTime) => new Date(currentTime.getTime() - 1000)), 300);
+			lastTime.current = setInterval(() => setTimer((currentTime) => {
+				const checkDate = new Date(currentTime.getTime() - 1000);
+				if (checkDate.getHours() === 23 && checkDate.getSeconds() === 59) {
+					zeroTime.current = true;
+					return new Date(currentTime.getTime());
+				}
+				return new Date(currentTime.getTime() - 1000);
+			}), 1000);
 		} else {
 			clearInterval(lastTime.current);
 			lastTime.current = null;
@@ -83,8 +85,7 @@ const Alarm = () => {
 	const onClickRepeat = () => {
 		setSessionTime(new Date('', '', '', '', 25, 0));
 		setBreakTime(new Date('', '', '', '', 5, 0));
-		setMinutes('25');
-		setSeconds('00');
+		setTimer(new Date('', '', '', '', 25, 0));
 		setIsRunning(false);
 		setIsBreak(false);
 		audioRef.current.currentTime = 0;
@@ -105,42 +106,23 @@ const Alarm = () => {
 	}, [sessionTime]);
 
 	useEffect(() => {
-		if (timer.getHours() === 23 && timer.getMinutes() === 59 && timer.getSeconds() === 59) {
-			console.log(timer);
-			setMinutes('00');
-			setSeconds('00');
-			return;
-		}
+		if (zeroTime.current) {
+			if (!isBreak && timer.getMinutes() === 0 && timer.getSeconds() === 0 && timer.getHours() === 0) {
+				audioRef.current.play();
+				setIsBreak(true);
+				zeroTime.current = false;
+				setTimer(new Date('', '', '', '', breakTime.getMinutes(), 0));
+				return;
+			}
 
-		if (sessionTime.getHours() === 1) {
-			setMinutes('60');
-			return;
-		}
-
-		if (sessionTime.getHours() === 0) {
-			console.log('aqui3');
-			setMinutes(timer.getMinutes().toLocaleString('pt-BR', {
-				minimumIntegerDigits: 2,
-			}));
-			setSeconds(timer.getSeconds().toLocaleString('pt-BR', {
-				minimumIntegerDigits: 2,
-			}));
+			if (isBreak && timer.getMinutes() === 0 && timer.getSeconds() === 0 && timer.getHours() === 0) {
+				audioRef.current.play();
+				setIsBreak(false);
+				zeroTime.current = false;
+				setTimer(new Date('', '', '', '', sessionTime.getMinutes(), 0));
+			}
 		}
 	}, [timer]);
-
-	useEffect(() => {
-		if (!isBreak && minutes === '00' && seconds === '00') {
-			audioRef.current.play();
-			setIsBreak(true);
-			setTimer(new Date('', '', '', '', breakTime.getMinutes(), 0));
-			return;
-		}
-
-		if (isBreak && minutes === '00' && seconds === '00') {
-			setIsBreak(false);
-			setTimer(new Date('', '', '', '', sessionTime.getMinutes(), 0));
-		}
-	}, [minutes, seconds]);
 
 	return (
 		<>
@@ -184,7 +166,17 @@ const Alarm = () => {
 			<div className="timer">
 				<Screen className="screenTimer">
 					<h2 id="timer-label">{isBreak ? 'BREAK' : 'SESSION'}</h2>
-					<h1 id="time-left">{`${minutes}:${seconds}`}</h1>
+					<h1 id="time-left">
+						{ timer.getHours() === 1
+							? `${timer.getHours() * 60}:${timer.getSeconds().toLocaleString('pt-BR', {
+								minimumIntegerDigits: 2,
+							})}`
+							: `${timer.getMinutes().toLocaleString('pt-BR', {
+								minimumIntegerDigits: 2,
+							})}:${timer.getSeconds().toLocaleString('pt-BR', {
+								minimumIntegerDigits: 2,
+							})}`}
+					</h1>
 					<audio
 						// eslint-disable-next-line react/jsx-indent-props
 						id="beep"

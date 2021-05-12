@@ -8,7 +8,7 @@
 	justify-content: center;
 	align-items: center;
 	background: linear-gradient(to bottom right, #464f54 50%, #2d383e 50%);
-	border: 1.5rem solid #323c41 1.5rem solid black;
+	border: 1.5rem solid #323c41;
 	border-radius: 0.8rem;
 }
 
@@ -34,7 +34,7 @@
 		font-weight: 400;
 		color: var(--number-color);
 		background-color: #464f54;
-		border: 0.2rem solid black;
+		border: 0.4rem solid black;
 		border-radius: 0.8rem;
 
 		+ div {
@@ -55,11 +55,11 @@
 
 				&:first-child {
 					border-right: none;
-					border-bottom-left-radius: 1rem;
+					border-bottom-left-radius: 0.5rem;
 				}
 
 				&:last-child {
-					border-bottom-right-radius: 1rem;
+					border-bottom-right-radius: 0.5rem;
 				}
 
 				&:active {
@@ -86,12 +86,12 @@
 	top: 0.4rem;
 
 	& > :first-child {
-		border-top-left-radius: 1rem;
+		border-top-left-radius: 0.5rem;
 	}
 
 	& > :last-child {
 		border-right: 0.15rem solid black;
-		border-top-right-radius: 1rem;
+		border-top-right-radius: 0.5rem;
 	}
 
 }
@@ -103,7 +103,7 @@
 	height: 1.8rem;
 	bottom: 0.1rem;
 	color: lightgrey;
-	background-color: #323c41;
+	background-color: #464f54;
 	border: 0.15rem solid black;
 	border-collapse:collapse;
 	border-bottom: 0.02rem solid black;
@@ -128,7 +128,7 @@
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	border: 0.3rem solid #0b1316;
+	outline: 0.4rem solid #0b1316;
 	border-radius: 0.8rem;
 
 
